@@ -24,6 +24,7 @@ Delivery sequence is fixed: **A -> B -> C**.
 - User can create an account.
 - User can sign in.
 - User can sign out.
+- User only sees their own closet items.”
 
 ### Closet Item Management
 User can add clothing items with:
