@@ -57,6 +57,7 @@ Open `http://localhost:3000`.
 - Sign in and add enough closet items to include at least one `top`, one `bottom`, and one `shoes`.
 - Open `http://localhost:3000/outfits`.
 - Submit occasion/vibe/weather/constraints to generate 1-3 outfit suggestions from your own closet items only.
+- Open `http://localhost:3000/settings` to reset all closet items for the signed-in user (requires typing `DELETE`).
 
 ### Seeding
 Use the one-time seed script to add a realistic closet for an existing user.

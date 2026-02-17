@@ -73,6 +73,12 @@ export default async function ClosetPage({ searchParams }: ClosetPageProps) {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Link
+            href="/settings"
+            className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+          >
+            Settings
+          </Link>
+          <Link
             href="/outfits"
             className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
           >
