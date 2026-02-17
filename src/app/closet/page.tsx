@@ -22,7 +22,7 @@ type ClothingItemRow = {
   warmth: string;
   formality: string;
   notes: string | null;
-  photo_path: string;
+  photo_path: string | null;
 };
 
 export default async function ClosetPage({ searchParams }: ClosetPageProps) {
@@ -39,6 +39,13 @@ export default async function ClosetPage({ searchParams }: ClosetPageProps) {
 
   const itemsWithUrls = await Promise.all(
     items.map(async (item) => {
+      if (!item.photo_path) {
+        return {
+          ...item,
+          photoUrl: null,
+        };
+      }
+
       const { data: signedUrlData } = await supabase
         .storage
         .from("closet-photos")
@@ -62,6 +69,12 @@ export default async function ClosetPage({ searchParams }: ClosetPageProps) {
           <p className="text-sm text-slate-600">Signed in as {user.email}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/outfits"
+            className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+          >
+            Outfit Suggestions
+          </Link>
           <Link
             href="/closet/new"
             className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
