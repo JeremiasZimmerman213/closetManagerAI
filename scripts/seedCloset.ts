@@ -6,6 +6,9 @@ import { createClient } from "@supabase/supabase-js";
 import { type Category, type Formality, type Warmth } from "../src/lib/clothing";
 
 type SeedItem = {
+  name: string;
+  brand: string | null;
+  subtype: string | null;
   category: Category;
   colors: string[];
   material: string | null;
@@ -15,6 +18,7 @@ type SeedItem = {
 };
 
 type ExistingItemRow = {
+  name: string;
   category: Category;
   colors: string[];
   material: string | null;
@@ -65,8 +69,9 @@ function normalizeColors(colors: string[]) {
   return colors.map((color) => color.trim().toLowerCase()).sort().join("|");
 }
 
-function itemKey(item: { category: string; material: string | null; colors: string[]; notes: string | null }) {
+function itemKey(item: { name: string; category: string; material: string | null; colors: string[]; notes: string | null }) {
   return [
+    item.name.trim().toLowerCase(),
     item.category.trim().toLowerCase(),
     (item.material ?? "").trim().toLowerCase(),
     normalizeColors(item.colors),
@@ -77,6 +82,9 @@ function itemKey(item: { category: string; material: string | null; colors: stri
 function getSeedItems(): SeedItem[] {
   return [
     {
+      name: "Classic White Tee",
+      brand: "Uniqlo",
+      subtype: "tee",
       category: "top",
       colors: ["white"],
       material: "cotton",
@@ -85,6 +93,9 @@ function getSeedItems(): SeedItem[] {
       notes: "plain white tee",
     },
     {
+      name: "Black Everyday Tee",
+      brand: "H&M",
+      subtype: "tee",
       category: "top",
       colors: ["black"],
       material: "cotton",
@@ -93,6 +104,9 @@ function getSeedItems(): SeedItem[] {
       notes: "plain black tee",
     },
     {
+      name: "Heather Gray Hoodie",
+      brand: "Nike",
+      subtype: "hoodie",
       category: "top",
       colors: ["gray"],
       material: "fleece",
@@ -101,6 +115,9 @@ function getSeedItems(): SeedItem[] {
       notes: "gray hoodie",
     },
     {
+      name: "Navy Crewneck Sweatshirt",
+      brand: "Champion",
+      subtype: "crewneck",
       category: "top",
       colors: ["navy"],
       material: "cotton",
@@ -109,6 +126,9 @@ function getSeedItems(): SeedItem[] {
       notes: "navy crewneck",
     },
     {
+      name: "Light Blue Oxford Shirt",
+      brand: "J.Crew",
+      subtype: "button-up",
       category: "top",
       colors: ["light blue"],
       material: "cotton",
@@ -117,14 +137,20 @@ function getSeedItems(): SeedItem[] {
       notes: "light blue button-up",
     },
     {
+      name: "Charcoal Quarter Zip",
+      brand: "Banana Republic",
+      subtype: "quarter zip",
       category: "top",
-      colors: ["heather gray"],
+      colors: ["charcoal"],
       material: "polyester blend",
       warmth: "medium",
       formality: "smart",
       notes: "charcoal quarter zip",
     },
     {
+      name: "Dark Wash Jeans",
+      brand: "Levi's",
+      subtype: "jeans",
       category: "bottom",
       colors: ["dark blue"],
       material: "denim",
@@ -133,6 +159,9 @@ function getSeedItems(): SeedItem[] {
       notes: "dark jeans",
     },
     {
+      name: "Light Wash Jeans",
+      brand: "Levi's",
+      subtype: "jeans",
       category: "bottom",
       colors: ["light blue"],
       material: "denim",
@@ -141,6 +170,9 @@ function getSeedItems(): SeedItem[] {
       notes: "light jeans",
     },
     {
+      name: "Black Tailored Trousers",
+      brand: "Uniqlo",
+      subtype: "trousers",
       category: "bottom",
       colors: ["black"],
       material: "wool blend",
@@ -149,6 +181,9 @@ function getSeedItems(): SeedItem[] {
       notes: "black trousers",
     },
     {
+      name: "Gray Fleece Sweatpants",
+      brand: "Adidas",
+      subtype: "sweatpants",
       category: "bottom",
       colors: ["gray"],
       material: "cotton fleece",
@@ -157,6 +192,9 @@ function getSeedItems(): SeedItem[] {
       notes: "gray sweats",
     },
     {
+      name: "Blue Denim Jacket",
+      brand: "Levi's",
+      subtype: "jacket",
       category: "outerwear",
       colors: ["blue"],
       material: "denim",
@@ -165,6 +203,9 @@ function getSeedItems(): SeedItem[] {
       notes: "denim jacket",
     },
     {
+      name: "Black Puffer Jacket",
+      brand: "North Face",
+      subtype: "puffer",
       category: "outerwear",
       colors: ["black"],
       material: "nylon",
@@ -173,6 +214,9 @@ function getSeedItems(): SeedItem[] {
       notes: "black puffer jacket",
     },
     {
+      name: "White Leather Sneakers",
+      brand: "Common Projects",
+      subtype: "sneakers",
       category: "shoes",
       colors: ["white"],
       material: "leather",
@@ -181,6 +225,9 @@ function getSeedItems(): SeedItem[] {
       notes: "white sneakers",
     },
     {
+      name: "Black Running Shoes",
+      brand: "Asics",
+      subtype: "running shoes",
       category: "shoes",
       colors: ["black"],
       material: "mesh",
@@ -189,6 +236,9 @@ function getSeedItems(): SeedItem[] {
       notes: "black running shoes",
     },
     {
+      name: "Silver Everyday Watch",
+      brand: "Seiko",
+      subtype: "watch",
       category: "accessory",
       colors: ["silver", "black"],
       material: "stainless steel",
@@ -240,21 +290,22 @@ async function main() {
 
   const { data: existingRows, error: existingError } = await supabase
     .from("clothing_items")
-    .select("category, colors, material, notes")
+    .select("name, category, colors, material, notes")
     .eq("user_id", userId);
 
   if (existingError) {
     throw new Error(`Failed to load existing clothing items: ${existingError.message}`);
   }
 
-  const existingKeys = new Set(
-    ((existingRows ?? []) as ExistingItemRow[]).map((item) => itemKey(item)),
-  );
+  const existingKeys = new Set(((existingRows ?? []) as ExistingItemRow[]).map((item) => itemKey(item)));
 
   const toInsert = seedItems
     .filter((item) => !existingKeys.has(itemKey(item)))
     .map((item) => ({
       user_id: userId,
+      name: item.name,
+      brand: item.brand,
+      subtype: item.subtype,
       category: item.category,
       colors: item.colors,
       material: item.material,

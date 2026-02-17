@@ -4,6 +4,9 @@ import { useState } from "react";
 
 type SuggestionItem = {
   id: string;
+  name: string;
+  brand: string | null;
+  subtype: string | null;
   category: string;
   colors: string[];
   material: string | null;
@@ -40,12 +43,15 @@ function ItemSummary({ label, item }: { label: string; item?: SuggestionItem }) 
   return (
     <li className="rounded-md border border-slate-200 bg-slate-50 p-3">
       <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</div>
-      <div className="mt-1 text-sm font-medium capitalize text-slate-900">{item.category}</div>
+      <div className="mt-1 text-sm font-medium text-slate-900">{item.name}</div>
+      {item.brand || item.subtype ? (
+        <div className="text-xs text-slate-600">{[item.brand, item.subtype].filter(Boolean).join(" · ")}</div>
+      ) : null}
+      <div className="text-sm text-slate-700">Category: {item.category}</div>
       <div className="text-sm text-slate-700">Colors: {item.colors.join(", ") || "-"}</div>
       <div className="text-sm text-slate-700">Warmth: {item.warmth}</div>
       <div className="text-sm text-slate-700">Formality: {item.formality}</div>
       {item.material ? <div className="text-sm text-slate-700">Material: {item.material}</div> : null}
-      {item.notes ? <div className="text-sm text-slate-700">Notes: {item.notes}</div> : null}
     </li>
   );
 }

@@ -13,6 +13,9 @@ interface ClothingFormProps {
   submitLabel: string;
   requirePhoto: boolean;
   defaultValues?: {
+    name: string;
+    brand: string;
+    subtype: string;
     category: Category;
     colors: string;
     material: string;
@@ -27,6 +30,9 @@ interface ClothingFormProps {
 type ClothingFormDefaults = NonNullable<ClothingFormProps["defaultValues"]>;
 
 const EMPTY_DEFAULTS: ClothingFormDefaults = {
+  name: "",
+  brand: "",
+  subtype: "",
   category: "top",
   colors: "",
   material: "",
@@ -47,6 +53,50 @@ export function ClothingForm({
     <div className="mx-auto max-w-2xl rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
       <FlashMessage error={error} message={message} />
       <form action={action} method="post" encType="multipart/form-data" className="space-y-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="name">
+              Name
+            </label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              required
+              defaultValue={defaultValues.name}
+              placeholder="White Everyday Tee"
+              className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="brand">
+              Brand (optional)
+            </label>
+            <input
+              id="brand"
+              name="brand"
+              type="text"
+              defaultValue={defaultValues.brand}
+              placeholder="Uniqlo"
+              className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="subtype">
+            Subtype (optional)
+          </label>
+          <input
+            id="subtype"
+            name="subtype"
+            type="text"
+            defaultValue={defaultValues.subtype}
+            placeholder="hoodie, quarter zip, chinos"
+            className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+          />
+        </div>
+
         <div>
           <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="photo">
             Photo

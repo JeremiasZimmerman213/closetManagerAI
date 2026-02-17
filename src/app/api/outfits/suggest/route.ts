@@ -45,7 +45,7 @@ export async function POST(request: Request) {
 
   const { data, error } = await supabase
     .from("clothing_items")
-    .select("id, user_id, category, colors, material, warmth, formality, notes, photo_path")
+    .select("id, user_id, name, brand, subtype, category, colors, material, warmth, formality, notes, photo_path")
     .eq("user_id", user.id);
 
   if (error) {
@@ -58,6 +58,12 @@ export async function POST(request: Request) {
     .map((row) => ({
       id: row.id,
       user_id: row.user_id,
+      name:
+        typeof row.name === "string" && row.name.trim()
+          ? row.name.trim()
+          : [row.colors?.[0] ?? "", row.subtype ?? row.category].join(" ").trim(),
+      brand: row.brand,
+      subtype: row.subtype,
       category: row.category,
       colors: Array.isArray(row.colors) ? row.colors.filter((color) => typeof color === "string") : [],
       material: row.material,

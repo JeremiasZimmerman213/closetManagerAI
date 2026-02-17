@@ -17,6 +17,9 @@ function asString(value: string | string[] | undefined) {
 
 type ClothingItemRow = {
   id: string;
+  name: string;
+  brand: string | null;
+  subtype: string | null;
   category: "top" | "bottom" | "shoes" | "outerwear" | "accessory";
   colors: string[];
   material: string | null;
@@ -32,7 +35,7 @@ export default async function ClosetEditPage({ params, searchParams }: ClosetEdi
 
   const { data, error } = await supabase
     .from("clothing_items")
-    .select("id, category, colors, material, warmth, formality, notes")
+    .select("id, name, brand, subtype, category, colors, material, warmth, formality, notes")
     .eq("id", resolvedParams.id)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -61,6 +64,9 @@ export default async function ClosetEditPage({ params, searchParams }: ClosetEdi
         error={formError}
         message={message}
         defaultValues={{
+          name: item.name,
+          brand: item.brand ?? "",
+          subtype: item.subtype ?? "",
           category: item.category,
           colors: item.colors.join(", "),
           material: item.material ?? "",

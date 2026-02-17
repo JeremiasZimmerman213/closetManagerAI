@@ -7,6 +7,9 @@ function createItem(overrides: Partial<ClothingItem>): ClothingItem {
   return {
     id: overrides.id ?? crypto.randomUUID(),
     user_id: overrides.user_id ?? "user-1",
+    name: overrides.name ?? "Sample Item",
+    brand: overrides.brand ?? null,
+    subtype: overrides.subtype ?? null,
     category: overrides.category ?? "top",
     colors: overrides.colors ?? ["black"],
     material: overrides.material ?? null,
@@ -19,9 +22,9 @@ function createItem(overrides: Partial<ClothingItem>): ClothingItem {
 
 test("returns outfit suggestions with required top/bottom/shoes", () => {
   const items: ClothingItem[] = [
-    createItem({ id: "top-1", category: "top", formality: "casual", colors: ["white"] }),
-    createItem({ id: "bottom-1", category: "bottom", formality: "casual", colors: ["navy"] }),
-    createItem({ id: "shoes-1", category: "shoes", formality: "casual", colors: ["black"] }),
+    createItem({ id: "top-1", name: "Classic White Tee", category: "top", formality: "casual", colors: ["white"] }),
+    createItem({ id: "bottom-1", name: "Dark Jeans", category: "bottom", formality: "casual", colors: ["navy"] }),
+    createItem({ id: "shoes-1", name: "Black Sneakers", category: "shoes", formality: "casual", colors: ["black"] }),
   ];
 
   const result = suggestOutfits(items, { occasion: "casual" });
@@ -32,6 +35,7 @@ test("returns outfit suggestions with required top/bottom/shoes", () => {
   assert.equal(first.items.top.category, "top");
   assert.equal(first.items.bottom.category, "bottom");
   assert.equal(first.items.shoes.category, "shoes");
+  assert.match(first.explanation, /Classic White Tee/);
 });
 
 test("returns missing category when required items are not available", () => {

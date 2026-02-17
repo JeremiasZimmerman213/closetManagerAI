@@ -16,6 +16,9 @@ function asString(value: string | string[] | undefined) {
 
 type ClothingItemRow = {
   id: string;
+  name: string;
+  brand: string | null;
+  subtype: string | null;
   category: string;
   colors: string[];
   material: string | null;
@@ -31,7 +34,7 @@ export default async function ClosetPage({ searchParams }: ClosetPageProps) {
 
   const { data, error } = await supabase
     .from("clothing_items")
-    .select("id, category, colors, material, warmth, formality, notes, photo_path")
+    .select("id, name, brand, subtype, category, colors, material, warmth, formality, notes, photo_path")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -110,7 +113,13 @@ export default async function ClosetPage({ searchParams }: ClosetPageProps) {
                 </div>
               )}
               <div className="space-y-2 p-4 text-sm text-slate-700">
-                <div className="font-medium capitalize text-slate-900">{item.category}</div>
+                <div className="text-base font-semibold text-slate-900">{item.name}</div>
+                {item.brand || item.subtype ? (
+                  <div className="text-sm text-slate-600">{[item.brand, item.subtype].filter(Boolean).join(" · ")}</div>
+                ) : null}
+                <div>
+                  <span className="font-medium">Category:</span> <span className="capitalize">{item.category}</span>
+                </div>
                 <div>
                   <span className="font-medium">Colors:</span> {item.colors.join(", ")}
                 </div>

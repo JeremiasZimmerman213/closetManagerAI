@@ -10,13 +10,16 @@ const NEUTRAL_COLORS = new Set(["black", "white", "gray", "grey", "navy", "beige
 export interface ClothingItem {
   id: string;
   user_id: string;
+  name: string;
+  brand: string | null;
+  subtype: string | null;
   category: Category;
   colors: string[];
   material: string | null;
   warmth: Warmth;
   formality: Formality;
   notes: string | null;
-  photo_path: string;
+  photo_path: string | null;
 }
 
 export interface OutfitRequest {
@@ -165,7 +168,15 @@ export function parseConstraints(rawConstraints: string | null | undefined): Par
 }
 
 function includesText(item: ClothingItem, value: string) {
-  const haystack = [item.category, item.material ?? "", item.notes ?? "", item.colors.join(" ")]
+  const haystack = [
+    item.name,
+    item.brand ?? "",
+    item.subtype ?? "",
+    item.category,
+    item.material ?? "",
+    item.notes ?? "",
+    item.colors.join(" "),
+  ]
     .join(" ")
     .toLowerCase();
 
@@ -181,14 +192,15 @@ function matchesConstraints(item: ClothingItem, constraints: ParsedConstraints) 
     return false;
   }
 
-  if (
-    constraints.noJeans
-    && (includesText(item, "jean") || includesText(item, "denim"))
-  ) {
+  if (constraints.noJeans && (includesText(item, "jean") || includesText(item, "denim"))) {
     return false;
   }
 
-  if (constraints.noWhiteShoes && item.category === "shoes" && item.colors.some((color) => normalize(color) === "white")) {
+  if (
+    constraints.noWhiteShoes
+    && item.category === "shoes"
+    && item.colors.some((color) => normalize(color) === "white")
+  ) {
     return false;
   }
 
@@ -338,6 +350,9 @@ function optionalAccessoryBonus(item: ClothingItem, occasion: "interview" | "dat
 }
 
 function explanationFor(
+  top: ClothingItem,
+  bottom: ClothingItem,
+  shoes: ClothingItem,
   occasion: "interview" | "date" | "casual",
   weather: WeatherBand | null,
   hasOuterwear: boolean,
@@ -345,16 +360,18 @@ function explanationFor(
 ) {
   const parts: string[] = [];
 
+  parts.push(`Built around ${top.name}, ${bottom.name}, and ${shoes.name}`);
+
   if (occasion === "interview") {
-    parts.push("Prioritizes business-ready pieces for interview settings");
+    parts.push("to keep the look business-leaning for interview settings");
   } else if (occasion === "date") {
-    parts.push("Leans smart while keeping the look approachable for a date");
+    parts.push("to balance smart and approachable pieces for a date");
   } else {
-    parts.push("Keeps the look casual and easy to wear");
+    parts.push("to keep things casual and easy to wear");
   }
 
   if (weather === "cold") {
-    parts.push(hasOuterwear ? "with added outerwear for cold weather" : "using warmer items for cold weather");
+    parts.push(hasOuterwear ? "with added outerwear for cold weather" : "using warmer pieces for cold weather");
   } else if (weather === "mild") {
     parts.push("with medium warmth for mild weather");
   } else if (weather === "hot") {
@@ -459,7 +476,15 @@ export function suggestOutfits(items: ClothingItem[], request: OutfitRequest): O
 
         allSuggestions.push({
           score,
-          explanation: explanationFor(occasion, weather, Boolean(chosenOuterwear), constraints.applied),
+          explanation: explanationFor(
+            top,
+            bottom,
+            shoe,
+            occasion,
+            weather,
+            Boolean(chosenOuterwear),
+            constraints.applied,
+          ),
           items: {
             top,
             bottom,

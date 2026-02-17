@@ -35,6 +35,9 @@ export async function POST(request: Request, { params }: RouteContext) {
   }
 
   const formData = await request.formData();
+  const nameInput = String(formData.get("name") ?? "").trim();
+  const brandInput = String(formData.get("brand") ?? "").trim();
+  const subtypeInput = String(formData.get("subtype") ?? "").trim();
   const category = String(formData.get("category") ?? "");
   const colorsInput = String(formData.get("colors") ?? "");
   const materialInput = String(formData.get("material") ?? "").trim();
@@ -42,6 +45,12 @@ export async function POST(request: Request, { params }: RouteContext) {
   const formality = String(formData.get("formality") ?? "");
   const notesInput = String(formData.get("notes") ?? "").trim();
   const photo = formData.get("photo");
+
+  if (!nameInput) {
+    return redirectWithQuery(request, `/closet/${resolvedParams.id}/edit`, {
+      error: "Name is required.",
+    });
+  }
 
   if (!isCategory(category) || !isWarmth(warmth) || !isFormality(formality)) {
     return redirectWithQuery(request, `/closet/${resolvedParams.id}/edit`, {
@@ -89,6 +98,9 @@ export async function POST(request: Request, { params }: RouteContext) {
   const { error: updateError } = await supabase
     .from("clothing_items")
     .update({
+      name: nameInput,
+      brand: brandInput || null,
+      subtype: subtypeInput || null,
       category,
       colors,
       material: materialInput || null,
