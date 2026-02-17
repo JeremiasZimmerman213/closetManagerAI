@@ -53,10 +53,28 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+### Outfit Suggestions (Milestone A)
+- Sign in and add enough closet items to include at least one `top`, one `bottom`, and one `shoes`.
+- Open `http://localhost:3000/outfits`.
+- Submit occasion/vibe/weather/constraints to generate 1-3 outfit suggestions from your own closet items only.
+
+### Seeding
+Use the one-time seed script to add a realistic closet for an existing user.
+
+```bash
+SEED_EMAIL=test@example.com SEED_PASSWORD=testpass npm run seed
+```
+
+Notes:
+- The script reads `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` from `.env.local`.
+- If `SEED_EMAIL` and `SEED_PASSWORD` are not provided, it defaults to `test@example.com` / `testpass`.
+- The script is idempotent and only inserts missing items for the signed-in user.
+
 ### Useful scripts
 ```bash
 npm run lint
 npm run typecheck
 npm run build
 npm run start
+npm run seed
 ```
