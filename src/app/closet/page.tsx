@@ -1,6 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 
+import { ClosetGridClient } from "@/components/closet-grid-client";
 import { FlashMessage } from "@/components/flash-message";
 import { requireUser } from "@/lib/auth";
 
@@ -28,6 +28,10 @@ type ClothingItemRow = {
   photo_path: string | null;
 };
 
+type ClosetItemWithUrl = ClothingItemRow & {
+  photoUrl: string | null;
+};
+
 export default async function ClosetPage({ searchParams }: ClosetPageProps) {
   const { supabase, user } = await requireUser();
   const resolvedSearchParams = await Promise.resolve(searchParams);
@@ -40,7 +44,7 @@ export default async function ClosetPage({ searchParams }: ClosetPageProps) {
 
   const items = (data ?? []) as ClothingItemRow[];
 
-  const itemsWithUrls = await Promise.all(
+  const itemsWithUrls: ClosetItemWithUrl[] = await Promise.all(
     items.map(async (item) => {
       if (!item.photo_path) {
         return {
@@ -102,53 +106,7 @@ export default async function ClosetPage({ searchParams }: ClosetPageProps) {
       </header>
 
       <FlashMessage error={errorMessage} message={message} />
-
-      {itemsWithUrls.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-slate-600">
-          No clothing items yet. Add your first item to start building your closet.
-        </div>
-      ) : (
-        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {itemsWithUrls.map((item) => (
-            <li key={item.id} className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-              {item.photoUrl ? (
-                <img src={item.photoUrl} alt={`${item.category} item`} className="h-64 w-full object-cover" />
-              ) : (
-                <div className="flex h-64 items-center justify-center bg-slate-100 text-sm text-slate-500">
-                  No photo available
-                </div>
-              )}
-              <div className="space-y-2 p-4 text-sm text-slate-700">
-                <div className="text-base font-semibold text-slate-900">{item.name}</div>
-                {item.brand || item.subtype ? (
-                  <div className="text-sm text-slate-600">{[item.brand, item.subtype].filter(Boolean).join(" · ")}</div>
-                ) : null}
-                <div>
-                  <span className="font-medium">Category:</span> <span className="capitalize">{item.category}</span>
-                </div>
-                <div>
-                  <span className="font-medium">Colors:</span> {item.colors.join(", ")}
-                </div>
-                <div>
-                  <span className="font-medium">Warmth:</span> {item.warmth}
-                </div>
-                <div>
-                  <span className="font-medium">Formality:</span> {item.formality}
-                </div>
-                <div>
-                  <span className="font-medium">Material:</span> {item.material || "-"}
-                </div>
-                <div>
-                  <span className="font-medium">Notes:</span> {item.notes || "-"}
-                </div>
-                <Link href={`/closet/${item.id}/edit`} className="inline-block font-medium underline">
-                  Edit
-                </Link>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+      <ClosetGridClient initialItems={itemsWithUrls} />
     </div>
   );
 }
